@@ -13,26 +13,41 @@ connectDB();
 const app = express();
 
 // ---------- CORS CONFIG ----------
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL, // <-- You will set this on Render
-];
+// ---------- CORS (robust, safe for credentials) ----------
+const getAllowedOrigins = () => {
+  // FRONTEND_URLS is a comma-separated env var you set on Render,
+  // e.g. "https://quickmeet-fqjhogaxg-skys-projects-7877f88b.vercel.app,https://quickmeet-three.vercel.app"
+  const envVal = (process.env.FRONTEND_URLS || "").trim();
+  const fromEnv = envVal
+    ? envVal
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+  return [
+    "http://localhost:5173", // local dev
+    ...fromEnv,
+  ];
+};
+
+const allowedOrigins = getAllowedOrigins();
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (Postman, curl)
+    origin: (origin, callback) => {
+      // allow requests with no origin (curl, Postman, same-origin server requests)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("❌ CORS blocked:", origin);
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, true);
       }
+
+      console.log("❌ CORS blocked:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
