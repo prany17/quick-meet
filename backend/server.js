@@ -14,17 +14,25 @@ const app = express();
 
 // ---------- CORS CONFIG ----------
 const allowedOrigins = [
-  "http://localhost:5173", // local dev
-  process.env.FRONTEND_URL, // deployed frontend
-  "*",
+  "http://localhost:5173",
+  process.env.FRONTEND_URL, // <-- You will set this on Render
 ];
 
 app.use(
   cors({
-    // origin: allowedOrigins,
-    origin: "*",
-    methods: ["GET", "POST"],
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS blocked:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST"],
   })
 );
 
