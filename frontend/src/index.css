@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* small convenience */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  @apply bg-gray-900 text-white;
+}
