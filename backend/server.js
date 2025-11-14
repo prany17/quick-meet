@@ -16,11 +16,13 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // local dev
   process.env.FRONTEND_URL, // deployed frontend
+  "*",
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    // origin: allowedOrigins,
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   })
